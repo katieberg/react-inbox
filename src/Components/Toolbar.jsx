@@ -40,8 +40,8 @@ class Toolbar extends React.Component {
                     {this.unread(context.state.messages) === 1 ? "" : "s"}
                   </>
                 </p>
-                <a class="btn btn-danger" href="/">
-                  <i class="fa fa-plus" />
+                <a className="btn btn-danger" href="/">
+                  <i className="fa fa-plus" />
                 </a>
                 {this.selected(context.state.messages) === 0 ? (
                   <button
@@ -59,84 +59,171 @@ class Toolbar extends React.Component {
                     <i className="fa fa-check-square-o" />
                   </button>
                 ) : (
-                  <button class="btn btn-default">
-                    <i class="fa fa-minus-square-o" />
+                  <button
+                    className="btn btn-default"
+                    onClick={context.bulkSelect}
+                  >
+                    <i className="fa fa-minus-square-o" />
                   </button>
                 )}
+                {this.selected(context.state.messages) === 0 ? (
+                  <>
+                    <button
+                      className="btn btn-default"
+                      onClick={context.markRead}
+                      disabled
+                    >
+                      Mark As Read
+                    </button>
+                    <button
+                      className="btn btn-default"
+                      onClick={context.markUnread}
+                      disabled
+                    >
+                      Mark As Unread
+                    </button>
+                    <select className="form-control label-select" disabled>
+                      <option>Apply label</option>
+                      <option
+                        value="dev"
+                        onClick={() => {
+                          context.addLabel("dev");
+                        }}
+                      >
+                        dev
+                      </option>
+                      <option
+                        value="personal"
+                        onClick={() => {
+                          context.addLabel("personal");
+                        }}
+                      >
+                        personal
+                      </option>
+                      <option
+                        value="gschool"
+                        onClick={() => {
+                          context.addLabel("gschool");
+                        }}
+                      >
+                        gschool
+                      </option>
+                    </select>
 
-                <button className="btn btn-default" onClick={context.markRead}>
-                  Mark As Read
-                </button>
+                    <select className="form-control label-select" disabled>
+                      <option>Remove label</option>
+                      <option
+                        value="dev"
+                        onClick={() => {
+                          context.removeLabel("dev");
+                        }}
+                      >
+                        dev
+                      </option>
+                      <option
+                        value="personal"
+                        onClick={() => {
+                          context.removeLabel("personal");
+                        }}
+                      >
+                        personal
+                      </option>
+                      <option
+                        value="gschool"
+                        onClick={() => {
+                          context.removeLabel("gschool");
+                        }}
+                      >
+                        gschool
+                      </option>
+                    </select>
 
-                <button
-                  className="btn btn-default"
-                  onClick={context.markUnread}
-                >
-                  Mark As Unread
-                </button>
+                    <button
+                      className="btn btn-default"
+                      onClick={context.deleteMessages}
+                      disabled
+                    >
+                      <i className="fa fa-trash-o" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="btn btn-default"
+                      onClick={context.markRead}
+                    >
+                      Mark As Read
+                    </button>
+                    <button
+                      className="btn btn-default"
+                      onClick={context.markUnread}
+                    >
+                      Mark As Unread
+                    </button>
+                    <select className="form-control label-select">
+                      <option>Apply label</option>
+                      <option
+                        value="dev"
+                        onClick={() => {
+                          context.addLabel("dev");
+                        }}
+                      >
+                        dev
+                      </option>
+                      <option
+                        value="personal"
+                        onClick={() => {
+                          context.addLabel("personal");
+                        }}
+                      >
+                        personal
+                      </option>
+                      <option
+                        value="gschool"
+                        onClick={() => {
+                          context.addLabel("gschool");
+                        }}
+                      >
+                        gschool
+                      </option>
+                    </select>
 
-                <select className="form-control label-select">
-                  <option>Apply label</option>
-                  <option
-                    value="dev"
-                    onClick={() => {
-                      context.addLabel("dev");
-                    }}
-                  >
-                    dev
-                  </option>
-                  <option
-                    value="personal"
-                    onClick={() => {
-                      context.addLabel("personal");
-                    }}
-                  >
-                    personal
-                  </option>
-                  <option
-                    value="gschool"
-                    onClick={() => {
-                      context.addLabel("gschool");
-                    }}
-                  >
-                    gschool
-                  </option>
-                </select>
+                    <select className="form-control label-select">
+                      <option>Remove label</option>
+                      <option
+                        value="dev"
+                        onClick={() => {
+                          context.removeLabel("dev");
+                        }}
+                      >
+                        dev
+                      </option>
+                      <option
+                        value="personal"
+                        onClick={() => {
+                          context.removeLabel("personal");
+                        }}
+                      >
+                        personal
+                      </option>
+                      <option
+                        value="gschool"
+                        onClick={() => {
+                          context.removeLabel("gschool");
+                        }}
+                      >
+                        gschool
+                      </option>
+                    </select>
 
-                <select className="form-control label-select">
-                  <option>Remove label</option>
-                  <option
-                    value="dev"
-                    onClick={() => {
-                      context.removeLabel("dev");
-                    }}
-                  >
-                    dev
-                  </option>
-                  <option
-                    value="personal"
-                    onClick={() => {
-                      context.removeLabel("personal");
-                    }}
-                  >
-                    personal
-                  </option>
-                  <option
-                    value="gschool"
-                    onClick={() => {
-                      context.removeLabel("gschool");
-                    }}
-                  >
-                    gschool
-                  </option>
-                </select>
-
-                <button
-                  className="btn btn-default"
-                  onClick={context.deleteMessages}
-                >
-                  <i className="fa fa-trash-o" />
-                </button>
+                    <button
+                      className="btn btn-default"
+                      onClick={context.deleteMessages}
+                    >
+                      <i className="fa fa-trash-o" />
+                    </button>
+                  </>
+                )}
               </>
             )}
           </MyContext.Consumer>
