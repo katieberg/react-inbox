@@ -3,12 +3,13 @@ import "./App.css";
 import Toolbar from "./Components/Toolbar";
 import MessageList from "./Components/MessageList";
 
-export const MyContext = React.createContext(); //step 1
+export const MyContext = React.createContext();
 
 class MyProvider extends Component {
-  //provider component
   state = {
-    messages: []
+    messages: [],
+    selectedIds: [], //want to refactor so we can keep track of selected items (for patch request purposes)
+    newMessage: false
   };
   async componentDidMount() {
     const response = await fetch(`http://localhost:8082/api/messages`);
@@ -18,23 +19,47 @@ class MyProvider extends Component {
         return { ...message };
       })
     });
-  }
-  toggleStarred = id => {
+    const ids = [];
+    for (let el of this.state.messages) {
+      if (el.selected) {
+        ids.push(el.id);
+      }
+    }
     this.setState({
-      messages: this.state.messages.map(message => {
-        if (message.id === id) {
-          return {
-            ...message,
-            starred: !message.starred
-          };
-        } else {
-          return {
-            ...message
-          };
-        }
-      })
+      selectedIds: ids
     });
-    console.log(id);
+  }
+  toggleComposeForm = () => {
+    this.setState({
+      newMessage: !this.state.newMessage
+    });
+  };
+  toggleStarred = async id => {
+    const res = await fetch("http://localhost:8082/api/messages", {
+      method: "PATCH",
+      body: JSON.stringify({ messageIds: [id], command: "star" }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    if (res.ok) {
+      this.setState({
+        messages: this.state.messages.map(message => {
+          if (message.id === id) {
+            return {
+              ...message,
+              starred: !message.starred
+            };
+          } else {
+            return {
+              ...message
+            };
+          }
+        })
+      });
+    } else {
+      console.log("uh oh - server issue");
+    }
   };
   toggleSelected = id => {
     this.setState({
@@ -52,98 +77,183 @@ class MyProvider extends Component {
       })
     });
   };
-  addLabel = label => {
-    this.setState({
-      messages: this.state.messages.map(message => {
-        if (message.selected) {
-          if (message.labels.includes(label)) {
-            return {
-              ...message
-            };
-          } else {
-            return {
-              ...message,
-              labels: [label].concat(message.labels)
-            };
-          }
-        } else {
-          return {
-            ...message
-          };
-        }
-      })
+  addLabel = async label => {
+    const ids = [];
+    for (let el of this.state.messages) {
+      if (el.selected) {
+        ids.push(el.id);
+      }
+    }
+    const res = await fetch("http://localhost:8082/api/messages", {
+      method: "PATCH",
+      body: JSON.stringify({
+        messageIds: ids,
+        command: "addLabel",
+        label: label
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
     });
-  };
-  removeLabel = label => {
-    this.setState({
-      messages: this.state.messages.map(message => {
-        if (message.selected) {
-          if (message.labels.includes(label)) {
-            return {
-              ...message,
-              labels: message.labels.filter(arrLabel => {
-                if (arrLabel === label) {
-                  return false;
-                }
-                return true;
-              })
-            };
+    if (res.ok) {
+      this.setState({
+        messages: this.state.messages.map(message => {
+          if (message.selected) {
+            if (message.labels.includes(label)) {
+              return {
+                ...message
+              };
+            } else {
+              return {
+                ...message,
+                labels: [label].concat(message.labels)
+              };
+            }
           } else {
             return {
               ...message
             };
           }
-        } else {
-          return {
-            ...message
-          };
-        }
-      })
-    });
+        })
+      });
+    }
   };
-  deleteMessages = () => {
-    this.setState({
-      messages: this.state.messages.filter(message => {
-        if (!message.selected) {
-          return true;
-        }
-        return false;
-      })
+  removeLabel = async label => {
+    const ids = [];
+    for (let el of this.state.messages) {
+      if (el.selected) {
+        ids.push(el.id);
+      }
+    }
+    const res = await fetch("http://localhost:8082/api/messages", {
+      method: "PATCH",
+      body: JSON.stringify({
+        messageIds: ids,
+        command: "removeLabel",
+        label: label
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
     });
+    if (res.ok) {
+      this.setState({
+        messages: this.state.messages.map(message => {
+          if (message.selected) {
+            if (message.labels.includes(label)) {
+              return {
+                ...message,
+                labels: message.labels.filter(arrLabel => {
+                  if (arrLabel === label) {
+                    return false;
+                  }
+                  return true;
+                })
+              };
+            } else {
+              return {
+                ...message
+              };
+            }
+          } else {
+            return {
+              ...message
+            };
+          }
+        })
+      });
+    }
   };
-  markRead = () => {
-    this.setState({
-      messages: this.state.messages.map(message => {
-        if (message.selected) {
-          return {
-            ...message,
-            read: true
-          };
-        } else {
-          return {
-            ...message,
-            read: message.read
-          };
-        }
-      })
+  deleteMessages = async () => {
+    const ids = [];
+    for (let el of this.state.messages) {
+      if (el.selected) {
+        ids.push(el.id);
+      }
+    }
+    const res = await fetch("http://localhost:8082/api/messages", {
+      method: "PATCH",
+      body: JSON.stringify({ messageIds: ids, command: "delete" }),
+      headers: {
+        "Content-Type": "application/json"
+      }
     });
+    if (res.ok) {
+      this.setState({
+        messages: this.state.messages.filter(message => {
+          if (!message.selected) {
+            return true;
+          }
+          return false;
+        })
+      });
+    } else {
+      console.log("uh oh server error");
+    }
   };
-  markUnread = () => {
-    this.setState({
-      messages: this.state.messages.map(message => {
-        if (message.selected) {
-          return {
-            ...message,
-            read: false
-          };
-        } else {
-          return {
-            ...message,
-            read: message.read
-          };
-        }
-      })
+  markRead = async () => {
+    const ids = [];
+    for (let el of this.state.messages) {
+      if (el.selected) {
+        ids.push(el.id);
+      }
+    }
+    const res = await fetch("http://localhost:8082/api/messages", {
+      method: "PATCH",
+      body: JSON.stringify({ messageIds: ids, command: "read", read: true }),
+      headers: {
+        "Content-Type": "application/json"
+      }
     });
+    if (res.ok) {
+      this.setState({
+        messages: this.state.messages.map(message => {
+          if (message.selected) {
+            return {
+              ...message,
+              read: true
+            };
+          } else {
+            return {
+              ...message,
+              read: message.read
+            };
+          }
+        })
+      });
+    } else console.log("uh oh, server issue");
+  };
+  markUnread = async () => {
+    const ids = [];
+    for (let el of this.state.messages) {
+      if (el.selected) {
+        ids.push(el.id);
+      }
+    }
+    const res = await fetch("http://localhost:8082/api/messages", {
+      method: "PATCH",
+      body: JSON.stringify({ messageIds: ids, command: "read", read: false }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    if (res.ok) {
+      this.setState({
+        messages: this.state.messages.map(message => {
+          if (message.selected) {
+            return {
+              ...message,
+              read: false
+            };
+          } else {
+            return {
+              ...message,
+              read: message.read
+            };
+          }
+        })
+      });
+    }
   };
   bulkSelect = () => {
     let selected = 0;
@@ -184,7 +294,8 @@ class MyProvider extends Component {
           bulkSelect: this.bulkSelect,
           deleteMessages: this.deleteMessages,
           addLabel: this.addLabel,
-          removeLabel: this.removeLabel
+          removeLabel: this.removeLabel,
+          toggleComposeForm: this.toggleComposeForm
         }}
       >
         {this.props.children}
@@ -206,3 +317,7 @@ function App() {
 }
 
 export default App;
+
+//user should be able to comose
+//see body of message
+//performance issues like store some data in state

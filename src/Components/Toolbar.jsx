@@ -40,9 +40,12 @@ class Toolbar extends React.Component {
                     {this.unread(context.state.messages) === 1 ? "" : "s"}
                   </>
                 </p>
-                <a className="btn btn-danger" href="/">
+                <button
+                  className="btn btn-danger"
+                  onClick={() => context.toggleComposeForm()}
+                >
                   <i className="fa fa-plus" />
-                </a>
+                </button>
                 {this.selected(context.state.messages) === 0 ? (
                   <button
                     className="btn btn-default"
