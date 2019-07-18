@@ -282,6 +282,31 @@ class MyProvider extends Component {
       });
     }
   };
+  addMessage = async composeState => {
+    const res = await fetch("http://localhost:8082/api/messages", {
+      method: "POST",
+      body: JSON.stringify({
+        subject: composeState.subject,
+        body: composeState.body
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    if (res.ok) {
+      this.setState({
+        messages: this.state.messages.concat([
+          {
+            subject: composeState.subject,
+            body: composeState.body,
+            read: false,
+            starred: false,
+            labels: []
+          }
+        ])
+      });
+    }
+  };
   render() {
     return (
       <MyContext.Provider
@@ -295,7 +320,8 @@ class MyProvider extends Component {
           deleteMessages: this.deleteMessages,
           addLabel: this.addLabel,
           removeLabel: this.removeLabel,
-          toggleComposeForm: this.toggleComposeForm
+          toggleComposeForm: this.toggleComposeForm,
+          addMessage: this.addMessage
         }}
       >
         {this.props.children}
@@ -318,6 +344,5 @@ function App() {
 
 export default App;
 
-//user should be able to comose
 //see body of message
 //performance issues like store some data in state

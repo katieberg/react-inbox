@@ -3,6 +3,15 @@ import "../App.css";
 import { MyContext } from "../App.js";
 
 class ComposeForm extends React.Component {
+  state = {
+    subject: "",
+    body: ""
+  };
+  handleChange = e => {
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  };
   render() {
     return (
       <MyContext.Consumer>
@@ -28,6 +37,7 @@ class ComposeForm extends React.Component {
                     id="subject"
                     placeholder="Enter a subject"
                     name="subject"
+                    onChange={this.handleChange}
                   />
                 </div>
               </div>
@@ -36,12 +46,21 @@ class ComposeForm extends React.Component {
                   Body
                 </label>
                 <div class="col-sm-8">
-                  <textarea name="body" id="body" class="form-control" />
+                  <textarea
+                    name="body"
+                    id="body"
+                    class="form-control"
+                    onChange={this.handleChange}
+                  />
                 </div>
               </div>
               <div class="form-group">
                 <div class="col-sm-8 col-sm-offset-2">
-                  <input type="submit" value="Send" class="btn btn-primary" />
+                  <input
+                    value="Send"
+                    class="btn btn-primary"
+                    onClick={() => context.addMessage(this.state)}
+                  />
                 </div>
               </div>
             </form>
